@@ -17,9 +17,11 @@ Basic example: [TodoMVC](https://github.com/facebook/flux/tree/master/examples/f
 
 Slightly more complex example: [Chat Client](https://github.com/facebook/flux/tree/master/examples/flux-chat)
 
+Flux Utils example : [TodoMVC](https://github.com/facebook/flux/tree/master/examples/flux-utils-todomvc)
+
 
 ## Requirements
-Flux is more of a pattern than a framework, and does not have any hard dependencies.  However, we often use [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter) as a basis for `Stores` and [React](https://github.com/facebook/react) for our `Views`.  The one piece of Flux not readily available elsewhere is the `Dispatcher`.  This module is available here to complete your Flux toolbox.  The Dispatcher's one dependency is the `invariant` module, also included here.
+Flux is more of a pattern than a framework, and does not have any hard dependencies.  However, we often use [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter) as a basis for `Stores` and [React](https://github.com/facebook/react) for our `Views`.  The one piece of Flux not readily available elsewhere is the `Dispatcher`.  This module, along with some other utilities, is available here to complete your Flux toolbox.
 
 
 ## Installing Flux
@@ -31,10 +33,39 @@ var Dispatcher = require('flux').Dispatcher;
 
 Take a look at the [dispatcher API and some examples](http://facebook.github.io/flux/docs/dispatcher.html#content).
 
+## Flux Utils
+
+We have also provided some basic utility classes to help get you started with Flux. These base classes are a solid foundation for a simple Flux application, but they are **not** a feature-complete framework that will handle all use cases. There are many other great Flux frameworks out there if these utilities do not fulfill your needs.
+
+```js
+import {ReduceStore} from 'flux/utils';
+
+class CounterStore extends ReduceStore<number> {
+  getInitialState(): number {
+    return 0;
+  }
+
+  reduce(state: number, action: Object): number {
+    switch (action.type) {
+      case 'increment':
+        return state + 1;
+
+      case 'square':
+        return state * state;
+
+      default:
+        return state;
+    }
+  }
+}
+```
+
+Check out the [example](https://github.com/facebook/flux/tree/master/examples/flux-utils-todomvc) and [documentation](https://facebook.github.io/flux/docs/flux-utils.html) for more information.
+
 ## Building Flux from a Cloned Repo
 Clone the repo and navigate into the resulting `flux` directory.  Then run `npm install`.
 
-This will run [Gulp](http://gulpjs.com/)-based build tasks automatically and produce the file Flux.js, which you can then require as a module. 
+This will run [Gulp](http://gulpjs.com/)-based build tasks automatically and produce the file Flux.js, which you can then require as a module.
 
 You could then require the Dispatcher like so:
 
@@ -50,7 +81,7 @@ Flux applications have three major parts: the ___dispatcher___, the ___stores___
 
 Flux eschews MVC in favor of a unidirectional data flow. When a user interacts with a React ___view___, the view propagates an ___action___ through a central ___dispatcher___, to the various ___stores___ that hold the application's data and business logic, which updates all of the views that are affected. This works especially well with React's declarative programming style, which allows the store to send updates without specifying how to transition views between states.
 
-We originally set out to deal correctly with derived data: for example, we wanted to show an unread count for message threads while another view showed a list of threads, with the unread ones highlighted. This was difficult to handle with MVC — marking a single thread as read would update the thread model, and then also need to update the unread count model.  These dependencies and cascading updates often occur in a large MVC application, leading to a tangled weave of data flow and unpredictable results.
+We originally set out to correctly deal with derived data: for example, we wanted to show an unread count for message threads while another view showed a list of threads, with the unread ones highlighted. This was difficult to handle with MVC — marking a single thread as read would update the thread model, and then also need to update the unread count model.  These dependencies and cascading updates often occur in a large MVC application, leading to a tangled weave of data flow and unpredictable results.
 
 Control is inverted with ___stores___: the stores accept updates and reconcile them as appropriate, rather than depending on something external to update its data in a consistent way. Nothing outside the store has any insight into how it manages the data for its domain, helping to keep a clear separation of concerns. This also makes stores more testable than models, especially since stores have no direct setter methods like `setAsRead()`, but instead have only an input point for a data payload, which is delivered through the ___dispatcher___ and originates with ___action creators___.
 
